@@ -33,7 +33,14 @@ public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
         Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
         // We build our transaction.
-        TransactionBuilder transactionBuilder = null; // TODO: Build a valid transaction.
+        TransactionBuilder transactionBuilder = new TransactionBuilder();
+
+        // Get ourselves as an issuer.
+        Party issuer = getOurIdentity();
+
+        TokenState state = new TokenState(issuer, recipient, amount);
+        transactionBuilder.addOutputState(state, TokenContract.ID, notary);
+        transactionBuilder.addCommand(new TokenContract.Issue(), issuer.getOwningKey());
 
         // We check our transaction is valid based on its contracts.
         transactionBuilder.verify(getServiceHub());
